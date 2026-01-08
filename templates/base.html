@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CinemaPulse - Real-Time Movie Feedback Platform{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar glass-effect">
+        <div class="container">
+            <div class="nav-brand">
+                <i class="fas fa-film brand-icon"></i>
+                <span class="brand-text">Cinema<span class="highlight">Pulse</span></span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">
+                    <i class="fas fa-home"></i> Home
+                </a></li>
+                <li><a href="/movies" class="nav-link {% if request.endpoint == 'movies' %}active{% endif %}">
+                    <i class="fas fa-film"></i> Movies
+                </a></li>
+                <li><a href="/analytics" class="nav-link {% if request.endpoint == 'analytics' %}active{% endif %}">
+                    <i class="fas fa-chart-line"></i> Analytics
+                </a></li>
+                {% if session.get('user_email') %}
+                <li><a href="/my-reviews" class="nav-link {% if request.endpoint == 'my_reviews' %}active{% endif %}">
+                    <i class="fas fa-user-circle"></i> My Reviews
+                </a></li>
+                <li class="nav-user-info">
+                    <span class="user-greeting">
+                        <i class="fas fa-user"></i> {{ session.get('user_name', 'User') }}
+                    </span>
+                </li>
+                {% endif %}
+            </ul>
+            
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        {% if session.get('user_email') %}
+        <div class="mobile-user-info">
+            <i class="fas fa-user-circle"></i>
+            <span>{{ session.get('user_name', 'User') }}</span>
+        </div>
+        {% endif %}
+        <a href="/" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="/movies" class="mobile-nav-link"><i class="fas fa-film"></i> Movies</a>
+        <a href="/analytics" class="mobile-nav-link"><i class="fas fa-chart-line"></i> Analytics</a>
+        {% if session.get('user_email') %}
+        <a href="/my-reviews" class="mobile-nav-link"><i class="fas fa-user-circle"></i> My Reviews</a>
+        {% endif %}
+    </div>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }} slide-in">
+                    <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'info' %}info-circle{% else %}exclamation-triangle{% endif %}"></i>
+                    <span>{{ message }}</span>
+                    <button class="flash-close" onclick="this.parentElement.remove()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer glass-effect">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3><i class="fas fa-film"></i> CinemaPulse</h3>
+                    <p>Real-time movie feedback & analytics platform</p>
+                    {% if session.get('user_email') %}
+                    <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="fas fa-user"></i> Signed in as <strong>{{ session.get('user_email') }}</strong>
+                    </p>
+                    {% endif %}
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+                        <li><a href="/movies"><i class="fas fa-film"></i> Movies</a></li>
+                        <li><a href="/analytics"><i class="fas fa-chart-line"></i> Analytics</a></li>
+                        {% if session.get('user_email') %}
+                        <li><a href="/my-reviews"><i class="fas fa-user-circle"></i> My Reviews</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Technology</h4>
+                    <div class="tech-badges">
+                        <span class="tech-badge"><i class="fab fa-python"></i> Flask</span>
+                        <span class="tech-badge"><i class="fas fa-database"></i> In-Memory</span>
+                        <span class="tech-badge"><i class="fas fa-code"></i> Python</span>
+                        <span class="tech-badge"><i class="fab fa-html5"></i> HTML5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; {{ now.year }} CinemaPulse. Crafted with <i class="fas fa-heart pulse"></i> for movie lovers</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    
+    <script>
+        // Auto-hide flash messages
+        document.addEventListener('DOMContentLoaded', function() {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function(message) {
+                setTimeout(function() {
+                    message.style.animation = 'slideOut 0.3s ease forwards';
+                    setTimeout(function() {
+                        message.remove();
+                    }, 300);
+                }, 5000);
+            });
+        });
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
