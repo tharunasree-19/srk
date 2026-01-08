@@ -47,10 +47,11 @@ try:
     else:
         print("🔐 Using explicit AWS credentials...")
         print(f"🔑 Access Key: {aws_key[:10] + '...' if aws_key else '❌ NOT SET'}")
-        dynamodb = boto3.resource('dynamodb', 
-                                 region_name=AWS_REGION,
-                                 aws_access_key_id=aws_key,
-                                 aws_secret_access_key=aws_secret)
+        dynamodb = dynamodb = boto3.resource(
+    'dynamodb',
+    region_name='ap-south-1'
+)
+
     
     # Test connection
     dynamodb.meta.client.list_tables()
